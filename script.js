@@ -1,120 +1,129 @@
-// Simuliamo un database di utenti (per test)
-const users = JSON.parse(localStorage.getItem('users')) || [];
+let users = []; // Array per memorizzare gli utenti
+let appointments = []; // Array per gli appuntamenti
 
-// Funzione per gestire la registrazione
-function register(username, email, password) {
-    const existingUser = users.find(u => u.username === username || u.email === email);
+// Funzione per fare il login
+function login() {
+    let username = document.getElementById("username").value;
+    let password = document.getElementById("password").value;
+
+    // Verifica che l'utente esista
+    let user = users.find(user => user.username === username && user.password === password);
     
-    if (existingUser) {
-        alert('Nome utente o email già registrati.');
-        return null;
-    }
-    
-    const newUser = { username, email, password, role: 'cliente' };
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    alert('Registrazione avvenuta con successo!');
-    return newUser;
-}
-
-// Funzione per gestire il login
-function login(username, password) {
-    const user = users.find(u => u.username === username && u.password === password);
-    
-    if (!user) {
-        alert('Nome utente o password errati.');
-        return null;
-    }
-    
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
-}
-
-// Funzione per gestire il logout
-function logout() {
-    localStorage.removeItem('user');
-    window.location.href = 'login.html'; // Reindirizza alla pagina di login
-}
-
-// Gestione della registrazione
-const registrationForm = document.getElementById('registration-form');
-if (registrationForm) {
-    registrationForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        const user = register(username, email, password);
-
-        if (user) {
-            // Dopo la registrazione, login automatico
-            localStorage.setItem('user', JSON.stringify(user)); // Salviamo l'utente nel localStorage
-            window.location.href = 'index.html'; // Redirigiamo alla pagina principale
+    if (user) {
+        // Se è un cliente
+        if (user.role === "customer") {
+            showCustomerPage();
+        } else if (user.role === "admin") {
+            showAdminPage();
         }
-    });
-}
-
-// Gestione del login
-const loginForm = document.getElementById('login-form');
-if (loginForm) {
-    loginForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        const user = login(username, password);
-
-        if (user) {
-            // Reindirizza alla pagina principale se il login è riuscito
-            window.location.href = 'index.html'; 
-        }
-    });
-}
-
-// Verifica se l'utente è loggato
-function checkIfLoggedIn() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    
-    if (!user) {
-        window.location.href = 'login.html'; // Se non è loggato, reindirizza al login
     } else {
-        // Se l'utente è loggato, mostra il benvenuto
-        document.getElementById('welcome').textContent = `Benvenuto ${user.username}`;
-        if (user.role === 'admin') {
-            // Mostra il calendario se l'utente è admin
-            document.getElementById('calendar').style.display = 'block';
-        } else {
-            // Mostra solo l'opzione di prenotazione per i clienti
-            document.getElementById('booking').style.display = 'block';
-        }
+        alert("Username o password errati!");
     }
 }
 
-// Quando la pagina è caricata, controlla se l'utente è loggato
-if (document.getElementById('welcome')) {
-    checkIfLoggedIn();
+// Funzione per registrare un nuovo utente
+function register() {
+    let username = document.getElementById("newUsername").value;
+    let password = document.getElementById("newPassword").value;
+    
+    // Aggiungi un nuovo utente
+    let newUser = {
+        username: username,
+        password: password,
+        role: "customer" // Imposta il ruolo come cliente per default
+    };
+    users.push(newUser);
+    alert("Registrazione completata!");
+    showLoginForm();
+}
+
+// Funzione per visualizzare la pagina di login
+function showLoginForm() {
+    document.getElementById("loginPage").style.display = "block";
+    document.getElementById("registrationPage").style.display = "none";
+}
+
+// Funzione per visualizzare la pagina di registrazione
+function showRegistrationForm() {
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("registrationPage").style.display = "block";
+}
+
+// Funzione per visualizzare la pagina per il cliente (prenotazione)
+function showCustomerPage() {
+    document.getElementById("calendarPage").style.display = "block";
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("adminPage").style.display = "none";
+
+    // Carica gli slot disponibili
+    loadAvailableSlots();
+}
+
+// Funzione per visualizzare la pagina per l'admin (gestione calendario)
+function showAdminPage() {
+    document.getElementById("calendarPage").style.display = "none";
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("adminPage").style.display = "block";
+
+    // Carica gli appuntamenti prenotati
+    loadAdminSlots();
+}
+
+// Funzione per fare il logout
+function logout() {
+    document.getElementById("calendarPage").style.display = "none";
+    document.getElementById("adminPage").style.display = "none";
+    document.getElementById("loginPage").style.display = "block";
+}
+
+// Funzione per caricare gli slot disponibili per il cliente
+function loadAvailableSlots() {
+    let slotsList = document.getElementById("slotsList");
+    slotsList.innerHTML = ''; // Pulisce la lista
+
+    let slots = [
+        '09:00 - 09:30', '09:30 - 10:00', '10:00 - 10:30',
+        '10:30 - 11:00', '11:00 - 11:30', '11:30 - 12:00'
+    ];
+
+    slots.forEach((slot, index) => {
+        let li = document.createElement("li");
+        li.textContent = slot;
+
+        // Aggiungi un pulsante per prenotare
+        let button = document.createElement("button");
+        button.textContent = "Prenota";
+        button.onclick = () => bookAppointment(index);
+
+        li.appendChild(button);
+        slotsList.appendChild(li);
+    });
 }
 
 // Funzione per prenotare un appuntamento
-function bookAppointment() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    
-    if (!user) {
-        alert('Devi essere loggato per prenotare un appuntamento.');
-        return;
-    }
+function bookAppointment(slotIndex) {
+    let selectedSlot = [
+        '09:00 - 09:30', '09:30 - 10:00', '10:00 - 10:30',
+        '10:30 - 11:00', '11:00 - 11:30', '11:30 - 12:00'
+    ][slotIndex];
 
-    // Prenotazione di esempio (per test)
-    alert(`Prenotazione effettuata per ${user.username}`);
+    // Verifica se l'appuntamento è già prenotato
+    if (appointments.includes(selectedSlot)) {
+        alert("Questo slot è già prenotato.");
+    } else {
+        appointments.push(selectedSlot);
+        alert("Appuntamento prenotato per " + selectedSlot);
+    }
 }
 
-// Gestione della prenotazione
-const bookingButton = document.getElementById('book-button');
-if (bookingButton) {
-    bookingButton.addEventListener('click', function() {
-        bookAppointment();
+// Funzione per caricare gli appuntamenti per l'admin
+function loadAdminSlots() {
+    let adminSlotsList = document.getElementById("adminSlotsList");
+    adminSlotsList.innerHTML = '';
+
+    appointments.forEach(slot => {
+        let li = document.createElement("li");
+        li.textContent = slot;
+        adminSlotsList.appendChild(li);
     });
 }
