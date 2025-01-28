@@ -1,61 +1,100 @@
+// Simuliamo un database di utenti (admin, clienti)
+const users = [
+    { username: 'admin', password: 'admin123', role: 'admin' },
+    { username: 'cliente', password: 'cliente123', role: 'cliente' }
+];
+
 // Array per memorizzare gli appuntamenti prenotati
 const appointments = [];
 
-// Funzione per mostrare il calendario
-function renderCalendar() {
-    const calendarContainer = document.getElementById("calendar");
-    calendarContainer.innerHTML = '';
-
-    const date = new Date();
-    for (let i = 0; i < 7; i++) { // Mostra 7 giorni (una settimana)
-        const slotDate = new Date(date);
-        slotDate.setDate(date.getDate() + i);
-
-        const slotElement = document.createElement('div');
-        slotElement.classList.add('calendar-slot');
-        slotElement.textContent = slotDate.toLocaleDateString();
-
-        // Verifica se la data è già prenotata
-        if (appointments.some(appointment => appointment.date === slotDate.toLocaleDateString())) {
-            slotElement.classList.add('booked');
-            slotElement.textContent += ' (Prenotato)';
-        } else {
-            slotElement.classList.add('available');
-            slotElement.addEventListener('click', () => bookAppointment(slotDate));
-        }
-
-        calendarContainer.appendChild(slotElement);
-    }
+// Funzione per gestire il login
+function login(username, password) {
+    const user = users.find(u => u.username === username && u.password === password);
+    return user ? user : null;
 }
 
-// Funzione per prenotare un appuntamento
-function bookAppointment(date) {
-    const name = document.getElementById('customer-name').value;
-    const email = document.getElementById('customer-email').value;
-
-    if (!name || !email) {
-        alert("Per favore, compila tutti i campi!");
-        return;
-    }
-
-    const appointment = {
-        name,
-        email,
-        date: date.toLocaleDateString()
-    };
-
+// Funzione per gestire la prenotazione
+function bookAppointment(dateTime, name, email) {
+    const appointment = { dateTime, name, email };
     appointments.push(appointment);
-    alert(`Appuntamento prenotato per ${name} il ${date.toLocaleDateString()}`);
-    renderCalendar();
 }
 
-// Gestione del form di prenotazione
-const form = document.getElementById('appointment-form');
-form.addEventListener('submit', function (event) {
+// Funzione per creare gli slot di 30 minuti
+function createSlots() {
+    const slots = [];
+    const start = new Date();
+    start.setHours(9, 0, 0, 0); // Iniziamo dalle 9:00
+
+    for (let i = 0; i < 8; i++) { // Genera 8 slot di 30 minuti
+        const slot = new Date(start);
+        slot.setMinutes(slot.getMinutes() + i * 30);
+        slots.push(slot);
+    }
+
+    return slots;
+}
+
+// Funzione per visualizzare il calendario
+function renderCalendar() {
+    const slots = createSlots();
+    const slotSelect = document.getElementById('appointment-slot');
+    slotSelect.innerHTML = '';
+
+    slots.forEach(slot => {
+        const option = document.createElement('option');
+        option.value = slot.toLocaleString();
+        option.textContent = slot.toLocaleTimeString();
+        slotSelect.appendChild(option);
+    });
+}
+
+// Gestione del login
+const loginForm = document.getElementById('login-form');
+loginForm.addEventListener('submit', function(event) {
     event.preventDefault();
-    const date = new Date(document.getElementById('appointment-date').value);
-    bookAppointment(date);
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const user = login(username, password);
+
+    if (user) {
+        localStorage.setItem('user', JSON.stringify(user)); // Salviamo l'utente nel localStorage
+        window.location.href = 'index.html'; // Redirigiamo alla pagina principale
+    } else {
+        alert('Credenziali errate!');
+    }
 });
 
-// Inizializza il calendario
-renderCalendar();
+// Funzione per gestire la visualizzazione della sezione in base al ruolo
+function displayUserInterface() {
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (user) {
+        document.getElementById('user-name').textContent = user.username;
+
+        if (user.role === 'admin') {
+            document.getElementById('admin-section').style.display = 'block';
+            renderCalendar();
+        } else {
+            document.getElementById('customer-section').style.display = 'block';
+        }
+    } else {
+        window.location.href = 'login.html'; // Se l'utente non è loggato, lo rimandiamo alla pagina di login
+    }
+}
+
+// Funzione per gestire la prenotazione dell'appuntamento
+const appointmentForm = document.getElementById('appointment-form');
+appointmentForm && appointmentForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('customer-name').value;
+    const email = document.getElementById('customer-email').value;
+    const dateTime = document.getElementById('appointment-slot').value;
+
+    bookAppointment(new Date(dateTime), name, email);
+    alert(`Appuntamento prenotato per ${name} il ${new Date(dateTime).toLocaleString()}`);
+});
+
+// Inizializzare l'interfaccia utente
+displayUserInterface();
