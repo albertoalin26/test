@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Appuntamenti Parrucchiere</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Gestione Appuntamenti Parrucchiere</h1>
+    </header>
+
+    <main>
+        <section class="user-section">
+            <h2>Registrati o Prenota</h2>
+            <form id="appointment-form">
+                <input type="text" id="customer-name" placeholder="Nome" required>
+                <input type="email" id="customer-email" placeholder="Email" required>
+                <input type="date" id="appointment-date" required>
+                <button type="submit">Prenota Appuntamento</button>
+            </form>
+        </section>
+
+        <section class="admin-section">
+            <h2>Calendario Appuntamenti</h2>
+            <div id="calendar"></div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
