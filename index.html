@@ -3,58 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Appuntamenti Parrucchiere</title>
-    <style>
-        /* Aggiungi qui gli stili, puoi personalizzare */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        .calendar {
-            display: flex;
-            flex-direction: column;
-            width: 300px;
-            margin: 20px auto;
-        }
-        .calendar div {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 5px;
-            background-color: #f0f0f0;
-            cursor: pointer;
-        }
-        .calendar div.booked {
-            background-color: #e0e0e0;
-            text-decoration: line-through;
-        }
-        .login-btn {
-            margin-top: 20px;
-        }
-    </style>
+    <title>Gestione Appuntamenti</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="app">
+        <div id="loginPage" style="display: block;">
+            <h1>Benvenuto! Effettua il login per continuare</h1>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <button onclick="showRegistrationForm()">Registrati</button>
+        </div>
 
-    <h1 id="welcome">Benvenuto! Effettua il login per continuare.</h1>
-    
-    <div id="calendar-container" style="display:none;">
-        <h2>Calendario Appuntamenti</h2>
-        <div class="calendar" id="calendar">
-            <!-- I calendari dinamici verranno generati qui -->
+        <div id="registrationPage" style="display: none;">
+            <h1>Registrazione</h1>
+            <input type="text" id="newUsername" placeholder="Username">
+            <input type="password" id="newPassword" placeholder="Password">
+            <button onclick="register()">Registrati</button>
+            <button onclick="showLoginForm()">Già registrato? Accedi</button>
+        </div>
+
+        <div id="calendarPage" style="display: none;">
+            <h1>Calendario Appuntamenti</h1>
+            <div id="availableSlots">
+                <h2>Slot disponibili per prenotare:</h2>
+                <ul id="slotsList"></ul>
+            </div>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div id="adminPage" style="display: none;">
+            <h1>Calendario delle Prenotazioni (Admin)</h1>
+            <div id="adminSlots">
+                <h2>Slot prenotati:</h2>
+                <ul id="adminSlotsList"></ul>
+            </div>
+            <button onclick="logout()">Logout</button>
         </div>
     </div>
-
-    <div id="booking-container" style="display:none;">
-        <h2>Prenota il tuo appuntamento</h2>
-        <div class="calendar" id="booking-calendar">
-            <!-- Calendario di prenotazione per i clienti -->
-        </div>
-    </div>
-
-    <button class="login-btn" id="logout" style="display:none;" onclick="logout()">Logout</button>
 
     <script src="script.js"></script>
 </body>
