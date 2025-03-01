@@ -5,9 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App Parucchiere</title>
     <!-- Aggiungi i link corretti per i pacchetti Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js"></script>
+   <script type="module">
+        // Importa i moduli di Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+        
+        // Configura Firebase
+        const firebaseConfig = {
+            apiKey: "LA_TUA_API_KEY",
+            authDomain: "il-tuo-progetto.firebaseapp.com",
+            projectId: "il-tuo-progetto",
+            storageBucket: "il-tuo-progetto.appspot.com",
+            messagingSenderId: "IL_TUO_SENDER_ID",
+            appId: "LA_TUA_APP_ID"
+        };
+
+        // Inizializza Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+       </script>
     
 </head>
 <body>
