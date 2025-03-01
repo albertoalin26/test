@@ -8,80 +8,90 @@ const firebaseConfig = {
     appId: "1:100832059727:web:0ca9b6062d52a2745a653a"
 };
 
+
 // Inizializza Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Inizializza Firebase Authentication
+const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-
-// Inizializza Firestore
 const db = firebase.firestore();
 
+// Riferimenti agli elementi del DOM
+const loginForm = document.getElementById("login-form");
+const registerForm = document.getElementById("register-form");
+const loginLink = document.getElementById("login-link");
+const registerLink = document.getElementById("register-link");
+const dashboard = document.getElementById("dashboard");
+const appContainer = document.getElementById("app");
+const logoutButton = document.getElementById("logout-button");
 
-// Funzione di registrazione dell'utente
-async function registerUser(email, password) {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+// Gestione login
+loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
     
-    // Aggiungi i dati dell'utente a Firestore
-    await setDoc(doc(db, "Users", user.uid), {
-      email: email,
-    });
-    console.log("Utente registrato con successo!");
-  } catch (error) {
-    console.error("Errore durante la registrazione:", error);
-  }
-}
-
-// Funzione per il login dell'utente
-function loginUser(email, password) {
-  auth.signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      const user = userCredential.user;
-      console.log("Logged in as: ", user.email);
-      // Dopo il login, puoi fare qualcosa, come redirigere l'utente a una pagina con il calendario
-    })
-    .catch(error => {
-      console.error("Error logging in: ", error.message);
-    });
-}
-
-// Funzione per recuperare i dati dell'utente
-function getUserData(userId) {
-  db.collection("Users").doc(userId).get()
-    .then(doc => {
-      if (doc.exists) {
-        console.log("User data: ", doc.data());
-        // Qui puoi fare qualcosa con i dati dell'utente, come visualizzare il calendario o altre informazioni
-      } else {
-        console.log("No such user!");
-      }
-    })
-    .catch(error => {
-      console.error("Error getting document: ", error);
-    });
-}
-
-// Funzione di logout
-function logoutUser() {
-  auth.signOut().then(() => {
-    console.log("User logged out");
-    // Puoi anche redirigere l'utente alla pagina di login
-  });
-}
-
-// Aggiungi eventi per form di login e registrazione
-document.getElementById("login-form").addEventListener("submit", function(event) {
-  event.preventDefault();
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
-  loginUser(email, password);
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+        showDashboard();
+    } catch (error) {
+        alert(error.message);
+    }
 });
 
-document.getElementById("register-form").addEventListener("submit", function(event) {
-  event.preventDefault();
-  const email = document.getElementById("register-email").value;
-  const password = document.getElementById("register-password").value;
-  registerUser(email, password);
+// Gestione registrazione
+registerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const email = document.getElementById("register-email").value;
+    const password = document.getElementById("register-password").value;
+    
+    try {
+        await auth.createUserWithEmailAndPassword(email, password);
+        // Salviamo l'utente in Firestore
+        const user = auth.currentUser;
+        await db.collection("Users").doc(user.uid).set({
+            email: email
+        });
+        alert("Registrazione riuscita!");
+        showDashboard();
+    } catch (error) {
+        alert(error.message);
+    }
+});
+
+// Mostra la pagina di login
+loginLink.addEventListener("click", () => {
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
+});
+
+// Mostra la pagina di registrazione
+registerLink.addEventListener("click", () => {
+    loginForm.style.display = "none";
+    registerForm.style.display = "block";
+});
+
+// Mostra il dashboard dell'utente
+function showDashboard() {
+    appContainer.style.display = "none";
+    dashboard.style.display = "block";
+}
+
+// Logout
+logoutButton.addEventListener("click", async () => {
+    try {
+        await auth.signOut();
+        appContainer.style.display = "block";
+        dashboard.style.display = "none";
+    } catch (error) {
+        alert(error.message);
+    }
+});
+
+// Verifica se l'utente è già loggato
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        showDashboard();
+    } else {
+        appContainer.style.display = "block";
+        dashboard.style.display = "none";
+    }
 });
