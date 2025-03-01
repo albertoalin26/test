@@ -61,3 +61,55 @@ auth.onAuthStateChanged(user => {
         console.log("Utente autenticato:", user.email);
     }
 });
+
+// PRENOTA UN APPUNTAMENTO
+function bookAppointment() {
+    const user = auth.currentUser;
+    const appointmentTime = document.getElementById("appointment-time").value;
+
+    if (!user) {
+        alert("Effettua il login per prenotare.");
+        return;
+    }
+
+    db.collection("appointments").add({
+        userId: user.uid,
+        dateTime: appointmentTime
+    }).then(() => {
+        alert("Appuntamento prenotato!");
+        loadAppointments();
+    }).catch(error => console.error("Errore:", error));
+}
+
+// MOSTRA GLI APPUNTAMENTI
+function loadAppointments() {
+    const user = auth.currentUser;
+    const appointmentsList = document.getElementById("appointments-list");
+    appointmentsList.innerHTML = "";
+
+    db.collection("appointments").where("userId", "==", user.uid).get()
+        .then(snapshot => {
+            snapshot.forEach(doc => {
+                const li = document.createElement("li");
+                li.textContent = doc.data().dateTime;
+                appointmentsList.appendChild(li);
+            });
+        });
+}
+
+// LOGOUT
+function logout() {
+    auth.signOut().then(() => {
+        window.location.href = "index.html";
+    });
+}
+
+// CONTROLLA L'ACCESSO DELL'UTENTE
+auth.onAuthStateChanged(user => {
+    if (user) {
+        loadAppointments();
+    } else {
+        window.location.href = "index.html";
+    }
+});
+
