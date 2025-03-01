@@ -1,45 +1,43 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>App Parrucchiere</title>
-  <!-- Firebase App -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-
-<!-- Firebase Authentication -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-
-<!-- Firebase Firestore -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-
-  <!-- Il tuo script personalizzato -->
-<script src="script.js"></script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parrucchiere App</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
-  <h1>Benvenuto nella tua App Parrucchiere2</h1>
+    <div id="app">
+        <h2>Benvenuto! Effettua il login per continuare.</h2>
+        <div id="loginForm">
+            <h3>Login</h3>
+            <form id="login-form">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <button id="register-link">Non hai un account? Registrati</button>
+        </div>
 
-  <!-- Form di registrazione -->
-  <div id="register-section">
-    <h2>Registrati</h2>
-    <form id="register-form">
-      <input type="email" id="register-email" placeholder="Email" required />
-      <input type="password" id="register-password" placeholder="Password" required />
-      <button type="submit">Registrati</button>
-    </form>
-  </div>
+        <div id="registerForm" style="display:none;">
+            <h3>Registrazione</h3>
+            <form id="register-form">
+                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="password" id="register-password" placeholder="Password" required>
+                <button type="submit">Registrati</button>
+            </form>
+            <button id="login-link">Hai già un account? Login</button>
+        </div>
 
-  <!-- Form di login -->
-  <div id="login-section">
-    <h2>Login</h2>
-    <form id="login-form">
-      <input type="email" id="login-email" placeholder="Email" required />
-      <input type="password" id="login-password" placeholder="Password" required />
-      <button type="submit">Accedi</button>
-    </form>
-  </div>
+        <div id="dashboard" style="display:none;">
+            <h2>Dashboard</h2>
+            <button id="logout-button">Logout</button>
+        </div>
+    </div>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
