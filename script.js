@@ -10,106 +10,79 @@ const firebaseConfig = {
 
 // Inizializza Firebase
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.firestore();
+const auth = firebase.auth();
 
-// REGISTRAZIONE UTENTE
-function register() {
-    const email = document.getElementById("register-email").value;
-    const password = document.getElementById("register-password").value;
-
-    auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-            const user = userCredential.user;
-            alert("Registrazione completata!");
-            // Salva il ruolo nel database
-            db.collection("users").doc(user.uid).set({
-                email: user.email,
-                role: "cliente"  // Di default tutti i nuovi utenti sono clienti
-            });
-        })
-        .catch(error => alert(error.message));
-}
-
-// LOGIN UTENTE
-function login() {
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("login-password").value;
-
-    auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-            const user = userCredential.user;
-            window.location.href = "dashboard.html"; // Reindirizza alla pagina principale
-        })
-        .catch(error => alert(error.message));
-}
-
-// LOGIN CON GOOGLE
-function loginWithGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-        .then(userCredential => {
-            const user = userCredential.user;
-            window.location.href = "dashboard.html";
-        })
-        .catch(error => alert(error.message));
-}
-
-// CONTROLLO SE L'UTENTE È LOGGATO
-auth.onAuthStateChanged(user => {
-    if (user) {
-        console.log("Utente autenticato:", user.email);
-    }
-});
-
-// PRENOTA UN APPUNTAMENTO
-function bookAppointment() {
-    const user = auth.currentUser;
-    const appointmentTime = document.getElementById("appointment-time").value;
-
-    if (!user) {
-        alert("Effettua il login per prenotare.");
-        return;
-    }
-
-    db.collection("appointments").add({
-        userId: user.uid,
-        dateTime: appointmentTime
-    }).then(() => {
-        alert("Appuntamento prenotato!");
-        loadAppointments();
-    }).catch(error => console.error("Errore:", error));
-}
-
-// MOSTRA GLI APPUNTAMENTI
-function loadAppointments() {
-    const user = auth.currentUser;
-    const appointmentsList = document.getElementById("appointments-list");
-    appointmentsList.innerHTML = "";
-
-    db.collection("appointments").where("userId", "==", user.uid).get()
-        .then(snapshot => {
-            snapshot.forEach(doc => {
-                const li = document.createElement("li");
-                li.textContent = doc.data().dateTime;
-                appointmentsList.appendChild(li);
-            });
-        });
-}
-
-// LOGOUT
-function logout() {
-    auth.signOut().then(() => {
-        window.location.href = "index.html";
+// Funzione per registrare un nuovo utente
+function registerUser(email, password) {
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      const user = userCredential.user;
+      // Aggiungi l'utente nella collezione "Users"
+      db.collection("Users").doc(user.uid).set({
+        email: email,
+        role: "client", // Puoi aggiungere altre informazioni come ruolo o nome
+      })
+      .then(() => {
+        console.log("User registered and added to Firestore!");
+      })
+      .catch(error => {
+        console.error("Error adding document: ", error);
+      });
+    })
+    .catch(error => {
+      console.error("Error signing up: ", error.message);
     });
 }
 
-// CONTROLLA L'ACCESSO DELL'UTENTE
-auth.onAuthStateChanged(user => {
-    if (user) {
-        loadAppointments();
-    } else {
-        window.location.href = "index.html";
-    }
+// Funzione per il login dell'utente
+function loginUser(email, password) {
+  auth.signInWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      const user = userCredential.user;
+      console.log("Logged in as: ", user.email);
+      // Dopo il login, puoi fare qualcosa, come redirigere l'utente a una pagina con il calendario
+    })
+    .catch(error => {
+      console.error("Error logging in: ", error.message);
+    });
+}
+
+// Funzione per recuperare i dati dell'utente
+function getUserData(userId) {
+  db.collection("Users").doc(userId).get()
+    .then(doc => {
+      if (doc.exists) {
+        console.log("User data: ", doc.data());
+        // Qui puoi fare qualcosa con i dati dell'utente, come visualizzare il calendario o altre informazioni
+      } else {
+        console.log("No such user!");
+      }
+    })
+    .catch(error => {
+      console.error("Error getting document: ", error);
+    });
+}
+
+// Funzione di logout
+function logoutUser() {
+  auth.signOut().then(() => {
+    console.log("User logged out");
+    // Puoi anche redirigere l'utente alla pagina di login
+  });
+}
+
+// Aggiungi eventi per form di login e registrazione
+document.getElementById("login-form").addEventListener("submit", function(event) {
+  event.preventDefault();
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
+  loginUser(email, password);
 });
 
+document.getElementById("register-form").addEventListener("submit", function(event) {
+  event.preventDefault();
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
+  registerUser(email, password);
+});
