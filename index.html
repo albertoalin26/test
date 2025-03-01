@@ -1,55 +1,116 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Parucchiere</title>
-    <!-- Aggiungi i link corretti per i pacchetti Firebase -->
-   <script type="module">
+    <title>App Parrucchiere</title>
+    <script type="module">
         // Importa i moduli di Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
         
         // Configura Firebase
-       const firebaseConfig = {
-    apiKey: "AIzaSyCg2TyyTs4NcUS-vkiWA4fsaf0zcSO2mKo",
+        const firebaseConfig = {
+            apiKey: "AIzaSyCg2TyyTs4NcUS-vkiWA4fsaf0zcSO2mKo",
     authDomain: "app-achi.firebaseapp.com",
     projectId: "app-achi",
     storageBucket: "app-achi.firebasestorage.app",
     messagingSenderId: "100832059727",
     appId: "1:100832059727:web:0ca9b6062d52a2745a653a"
-};
+        };
 
         // Inizializza Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-       </script>
-    
+
+        // Funzione per gestire login/registrazione
+        const loginRegisterSection = document.getElementById('login-register-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const userEmailDisplay = document.getElementById('user-email');
+
+        // Listener per il cambiamento dello stato di autenticazione
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginRegisterSection.style.display = "none";
+                dashboardSection.style.display = "block";
+                userEmailDisplay.textContent = user.email;
+            } else {
+                loginRegisterSection.style.display = "block";
+                dashboardSection.style.display = "none";
+            }
+        });
+
+        // Funzione di login
+        function loginUser() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    console.log("User logged in:", userCredential.user);
+                    // Redirect o logica aggiuntiva dopo il login
+                })
+                .catch((error) => {
+                    console.error("Error logging in:", error);
+                    alert("Errore di login: " + error.message);
+                });
+        }
+
+        // Funzione di registrazione
+        function registerUser() {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    console.log("User registered:", userCredential.user);
+                    // Redirect o logica aggiuntiva dopo la registrazione
+                })
+                .catch((error) => {
+                    console.error("Error registering:", error);
+                    alert("Errore di registrazione: " + error.message);
+                });
+        }
+    </script>
 </head>
 <body>
-
-    <h1>App Prenotazioni Parrucchiere11</h1>
-
-    <!-- Sezione Login/Registrazione -->
     <div id="login-register-section">
+        <!-- Form di login -->
         <h2>Login</h2>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button id="loginBtn">Login</button>
-        <button id="registerBtn">Registrati</button>
+        <input type="email" id="login-email" placeholder="Email" required><br>
+        <input type="password" id="login-password" placeholder="Password" required><br>
+        <button onclick="loginUser()">Login</button>
+
+        <br><br>
+
+        <!-- Form di registrazione -->
+        <h2>Registrati</h2>
+        <input type="email" id="register-email" placeholder="Email" required><br>
+        <input type="password" id="register-password" placeholder="Password" required><br>
+        <button onclick="registerUser()">Registrati</button>
     </div>
 
-    <!-- Sezione Dashboard -->
-    <div id="dashboard-section" style="display: none;">
-        <h2>Dashboard - Benvenuto</h2>
-        <p>Ciao, <span id="user-email"></span></p>
-        <button id="logoutBtn">Logout</button>
-        <!-- Qui andrai a gestire gli appuntamenti -->
+    <div id="dashboard-section" style="display:none;">
+        <h2>Benvenuto!</h2>
+        <p>Sei loggato con l'email: <span id="user-email"></span></p>
+        <button onclick="signOut()">Logout</button>
     </div>
 
-   
-    <script src="https://albertoalin26.github.io/test/script.js"></script>
+    <script>
+        // Funzione di logout
+        function signOut() {
+            const auth = getAuth();
+            auth.signOut()
+                .then(() => {
+                    console.log("User logged out");
+                    window.location.reload(); // Ricarica la pagina per mostrare il form di login/registrazione
+                })
+                .catch((error) => {
+                    console.error("Error logging out:", error);
+                });
+        }
+    </script>
 </body>
 </html>
