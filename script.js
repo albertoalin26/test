@@ -1,11 +1,11 @@
 // Configurazione Firebase
 const firebaseConfig = {
-    apiKey: "LA_TUA_API_KEY",
-    authDomain: "il-tuo-progetto.firebaseapp.com",
-    projectId: "il-tuo-progetto",
-    storageBucket: "il-tuo-progetto.appspot.com",
-    messagingSenderId: "IL_TUO_SENDER_ID",
-    appId: "LA_TUA_APP_ID"
+    apiKey: "AIzaSyCg2TyyTs4NcUS-vkiWA4fsaf0zcSO2mKo",
+    authDomain: "app-achi.firebaseapp.com",
+    projectId: "app-achi",
+    storageBucket: "app-achi.firebasestorage.app",
+    messagingSenderId: "100832059727",
+    appId: "1:100832059727:web:0ca9b6062d52a2745a653a"
 };
 
 // Inizializza Firebase
