@@ -1,33 +1,35 @@
-// Configurazione Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyCg2TyyTs4NcUS-vkiWA4fsaf0zcSO2mKo",
-    authDomain: "app-achi.firebaseapp.com",
-    projectId: "app-achi",
-    storageBucket: "app-achi.firebasestorage.app",
-    messagingSenderId: "100832059727",
-    appId: "1:100832059727:web:0ca9b6062d52a2745a653a"
-};
+// Riferimenti agli elementi DOM
+const emailField = document.getElementById("email");
+const passwordField = document.getElementById("password");
+const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
+const loginRegisterSection = document.getElementById("login-register-section");
+const dashboardSection = document.getElementById("dashboard-section");
+const userEmailDisplay = document.getElementById("user-email");
+const logoutBtn = document.getElementById("logoutBtn");
 
+// Funzione per registrare un utente
+registerBtn.addEventListener("click", async () => {
+    const email = emailField.value;
+    const password = passwordField.value;
+    
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        alert("Registrazione completata con successo!");
+        // Salva l'utente nel database Firestore
+        await firestore.collection('Users').doc(user.uid).set({
+            email: user.email
+        });
+    } catch (error) {
+        alert(error.message);
+    }
+});
 
-// Inizializza Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// Riferimenti agli elementi del DOM
-const loginForm = document.getElementById("login-form");
-const registerForm = document.getElementById("register-form");
-const loginLink = document.getElementById("login-link");
-const registerLink = document.getElementById("register-link");
-const dashboard = document.getElementById("dashboard");
-const appContainer = document.getElementById("app");
-const logoutButton = document.getElementById("logout-button");
-
-// Gestione login
-loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("login-password").value;
+// Funzione per effettuare il login
+loginBtn.addEventListener("click", async () => {
+    const email = emailField.value;
+    const password = passwordField.value;
     
     try {
         await auth.signInWithEmailAndPassword(email, password);
@@ -37,61 +39,27 @@ loginForm.addEventListener("submit", async (event) => {
     }
 });
 
-// Gestione registrazione
-registerForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const email = document.getElementById("register-email").value;
-    const password = document.getElementById("register-password").value;
-    
-    try {
-        await auth.createUserWithEmailAndPassword(email, password);
-        // Salviamo l'utente in Firestore
-        const user = auth.currentUser;
-        await db.collection("Users").doc(user.uid).set({
-            email: email
-        });
-        alert("Registrazione riuscita!");
-        showDashboard();
-    } catch (error) {
-        alert(error.message);
-    }
-});
-
-// Mostra la pagina di login
-loginLink.addEventListener("click", () => {
-    loginForm.style.display = "block";
-    registerForm.style.display = "none";
-});
-
-// Mostra la pagina di registrazione
-registerLink.addEventListener("click", () => {
-    loginForm.style.display = "none";
-    registerForm.style.display = "block";
-});
-
-// Mostra il dashboard dell'utente
+// Funzione per mostrare la dashboard
 function showDashboard() {
-    appContainer.style.display = "none";
-    dashboard.style.display = "block";
+    loginRegisterSection.style.display = "none";
+    dashboardSection.style.display = "block";
+    const user = auth.currentUser;
+    userEmailDisplay.textContent = user.email;
 }
 
-// Logout
-logoutButton.addEventListener("click", async () => {
-    try {
-        await auth.signOut();
-        appContainer.style.display = "block";
-        dashboard.style.display = "none";
-    } catch (error) {
-        alert(error.message);
-    }
+// Funzione per fare il logout
+logoutBtn.addEventListener("click", () => {
+    auth.signOut();
+    loginRegisterSection.style.display = "block";
+    dashboardSection.style.display = "none";
 });
 
-// Verifica se l'utente è già loggato
-auth.onAuthStateChanged((user) => {
+// Funzione di ascolto per quando l'utente è autenticato
+auth.onAuthStateChanged(user => {
     if (user) {
         showDashboard();
     } else {
-        appContainer.style.display = "block";
-        dashboard.style.display = "none";
+        loginRegisterSection.style.display = "block";
+        dashboardSection.style.display = "none";
     }
 });
