@@ -20,7 +20,7 @@ const auth = getAuth(app);
 
 
 // Funzione di registrazione dell'utente
-async function registerUser(email, password, name, role) {
+async function registerUser(email, password) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -28,8 +28,6 @@ async function registerUser(email, password, name, role) {
     // Aggiungi i dati dell'utente a Firestore
     await setDoc(doc(db, "Users", user.uid), {
       email: email,
-      name: name,
-      role: role,
     });
     console.log("Utente registrato con successo!");
   } catch (error) {
