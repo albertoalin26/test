@@ -1,4 +1,7 @@
-
+// Importa Firebase e Firestore
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, setDoc } from "firebase/firestore"; 
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 // Configurazione Firebase
 const firebaseConfig = {
@@ -11,30 +14,27 @@ const firebaseConfig = {
 };
 
 // Inizializza Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-// Funzione per registrare un nuovo utente
-function registerUser(email, password) {
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      const user = userCredential.user;
-      // Aggiungi l'utente nella collezione "Users"
-      db.collection("Users").doc(user.uid).set({
-        email: email,
-        role: "client", // Puoi aggiungere altre informazioni come ruolo o nome
-      })
-      .then(() => {
-        console.log("User registered and added to Firestore!");
-      })
-      .catch(error => {
-        console.error("Error adding document: ", error);
-      });
-    })
-    .catch(error => {
-      console.error("Error signing up: ", error.message);
+
+// Funzione di registrazione dell'utente
+async function registerUser(email, password, name, role) {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Aggiungi i dati dell'utente a Firestore
+    await setDoc(doc(db, "Users", user.uid), {
+      email: email,
+      name: name,
+      role: role,
     });
+    console.log("Utente registrato con successo!");
+  } catch (error) {
+    console.error("Errore durante la registrazione:", error);
+  }
 }
 
 // Funzione per il login dell'utente
